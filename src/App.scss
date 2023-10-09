@@ -1,16 +1,18 @@
 .app {
   padding: 20px;
-
+  width: 530px;
+  background: white;
+  box-shadow: 4px 4px 20px 2px #888;
   .instruction {
     font-style: italic;
   }
 
   .sentence-container {
-    border: 1px solid #ccc;
+    border: 2px solid navy;
     border-radius: 4px;
     font-size: 1.2rem;
     margin: 20px 0;
-    padding: 10px;
+    padding: 20px;
   }
   
 
@@ -43,5 +45,19 @@
 
   .message-container {
     margin: 20px 0;
+
+    &.error {
+      background-color: lavenderblush;
+      border: 1px solid pink;
+      border-radius: 4px;
+      color: crimson;
+      padding: 5px 10px;
+      width: fit-content;
+
+      ul {
+        margin: 5px;
+        line-height: 1.2;
+      }
+    }
   }
 }

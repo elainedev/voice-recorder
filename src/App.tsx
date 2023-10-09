@@ -3,16 +3,13 @@ import './App.scss';
 
 const VoiceRecorder: React.FC = () => {
 
-
-
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>();
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isRecording, setIsRecording] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>();
+  const [error, setError] = useState<Error | null | unknown>(null);
 
   useEffect(() => {
 
-    console.log(navigator)
     // request mic access
     navigator.mediaDevices.getUserMedia({audio: true})
       .then((stream: MediaStream) => {
@@ -20,7 +17,9 @@ const VoiceRecorder: React.FC = () => {
         setIsRecording(false);
         setError(null);
       })
-      .catch((error: Error) => setError(error.message));
+      .catch((error: Error) => {
+        setError(error)
+      });
   }, []);
 
   useEffect(() => {
@@ -28,16 +27,13 @@ const VoiceRecorder: React.FC = () => {
       let chunks: Blob[] = [];
 
       mediaRecorder.ondataavailable = (event : BlobEvent) => {
-        console.log('ev', event);
         if (event.data.size) {
           chunks.push(event.data);
         }
-        console.log('chunks', chunks)
       };
-
+      
       mediaRecorder.onstop = () => {
         const blob = new Blob(chunks, {type: 'audio/wav'});
-        console.log('blob', blob);
         setAudioBlob(blob);
         chunks = [];
       }
@@ -45,9 +41,14 @@ const VoiceRecorder: React.FC = () => {
   }, [mediaRecorder])
 
   const startRecording = () => {
-    if (mediaRecorder && !isRecording) {
-      mediaRecorder.start();
-      setIsRecording(true);
+    try {
+      if (mediaRecorder && !isRecording) {
+        mediaRecorder.start();
+        setIsRecording(true);
+      }
+    }
+    catch (error: unknown) {
+      setError(error)
     }
   }
 
@@ -67,7 +68,7 @@ const VoiceRecorder: React.FC = () => {
 
   return (
     <div className='app'>
-      <label className='instruction'>{`Howdy, please record the following sentence with your voice:`}</label>
+      <label className='instruction'>{`Please record the following sentence with your voice:`}</label>
 
       <div className='sentence-container'>
         <p className='sentence'>The quick brown fox jumps over the lazy dog.</p>
@@ -78,7 +79,7 @@ const VoiceRecorder: React.FC = () => {
         disabled={isRecording}
         onClick={startRecording}
       >
-        {audioBlob ? 'Re-Record' : 'Record'}
+        {audioBlob ? 'Re-Record' : 'Start Recording'}
       </button>
 
       <button 
@@ -103,6 +104,19 @@ const VoiceRecorder: React.FC = () => {
       <div className='message-container'>
         {isRecording && 'Recording in Progress...'}
       </div>
+      {error instanceof Error && <div className='error message-container'>
+        <p>{error.message}</p>
+        {error instanceof DOMException &&
+          <>
+            Please ensure that you
+            <ul>
+              <li>have enabled microphone access</li>
+              <li>have refreshed the page after enabling microphone access</li>
+              <li>are using the latest versions of Chrome, Firefox, or Safari</li>
+            </ul>
+          </>
+        }
+      </div>}
     </div>
   );
 }
