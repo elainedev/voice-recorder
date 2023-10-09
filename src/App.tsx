@@ -1,4 +1,5 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
+import { ErrorMessage } from './components/ErrorMessage';
 import './App.scss';
 
 const VoiceRecorder: React.FC = () => {
@@ -107,14 +108,7 @@ const VoiceRecorder: React.FC = () => {
       {error instanceof Error && <div className='error message-container'>
         <p>{error.message}</p>
         {error instanceof DOMException &&
-          <>
-            Please ensure that you
-            <ul>
-              <li>have enabled microphone access</li>
-              <li>have refreshed the page after enabling microphone access</li>
-              <li>are using the latest versions of Chrome, Firefox, or Safari</li>
-            </ul>
-          </>
+          <ErrorMessage />
         }
       </div>}
     </div>

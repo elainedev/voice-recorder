@@ -1,6 +1,7 @@
 .app {
   padding: 20px;
-  width: 530px;
+  min-width: 350px;
+  max-width: 530px;
   background: white;
   box-shadow: 4px 4px 20px 2px #888;
   .instruction {
@@ -21,12 +22,13 @@
     border-radius: 4px;
     color: white;
     margin-inline-end: 10px;
+    margin-bottom: 10px;
     padding: 10px 20px;
     font-size: 1.2rem;
 
     &:disabled {
-      color: #ccc;
-      opacity: 0.6;
+      color: #888;
+      opacity: 0.5;
     }
 
     &.record {
@@ -40,11 +42,11 @@
     &.play {
       background-color: slateblue;
     }
-    
   }
 
   .message-container {
     margin: 20px 0;
+    min-height: 20px;
 
     &.error {
       background-color: lavenderblush;
@@ -52,7 +54,6 @@
       border-radius: 4px;
       color: crimson;
       padding: 5px 10px;
-      width: fit-content;
 
       ul {
         margin: 5px;
