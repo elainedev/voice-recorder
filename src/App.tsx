@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import cn from 'classnames';
 import AudioVisualizer from './components/AudioVisualizer';
 import ErrorInstruction from './components/ErrorInstruction';
 import './App.scss';
@@ -10,7 +11,7 @@ const VoiceRecorder: React.FC = () => {
   const [isCountingDown, setIsCountingDown] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [error, setError] = useState<Error | null | unknown>();
-  const [secondsRemaining, setSecondsRemaining] = useState<number | string | null>();
+  const [secondsRemaining, setSecondsRemaining] = useState<number | string | null>(null);
   const [hasCountdown, setHasCountdown] = useState<boolean>(false);
 
   useEffect(() => {
@@ -74,6 +75,7 @@ const VoiceRecorder: React.FC = () => {
   }
 
   const startRecording = () => {
+
     try {
       if (mediaRecorder && !isRecording) {
         mediaRecorder.start();
@@ -151,10 +153,28 @@ const VoiceRecorder: React.FC = () => {
       <div className='text-container center'>
         {generateStatusMessage()}
       </div>
-      {hasCountdown && <div className='countdown-outer-container center'>
+      {hasCountdown && <div 
+        className={cn(
+          'countdown-outer-container',
+          'center',
+          {
+            'recording' : secondsRemaining === 'Speak',
+            'inactive' : secondsRemaining === null
+          }
+        )}
+        >
         {isCountingDown && <div className='spinner' />}
         
-        <div className='countdown-inner-container center'>
+        <div 
+          className={cn(
+            'countdown-inner-container',
+            'center',
+            {
+              'dividing-lines' : secondsRemaining !== 'Speak',
+              'recording' : secondsRemaining === 'Speak'
+            }
+          )}
+        >
           {secondsRemaining}
         </div>
       </div>}
