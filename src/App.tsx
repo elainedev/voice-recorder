@@ -100,6 +100,16 @@ const VoiceRecorder: React.FC = () => {
     }
   };
 
+  const generateStatusMessage = () => {
+    if (isRecording) {
+      return 'Recording in Progress...';
+    }
+    else if (audioBlob) {
+      return 'Audio Recorded.';
+    }
+    return 'No Audio Recording on File.'
+  }
+
   return (
     <div className='app'>
       <label className='instruction'>{`Please record the following sentence with your voice:`}</label>
@@ -137,10 +147,10 @@ const VoiceRecorder: React.FC = () => {
         Play
       </button>
 
-      <div className='text-container'>
-        {audioBlob ? 'Audio Recorded' : 'No Audio on File'}
-      </div>
       
+      <div className='text-container center'>
+        {generateStatusMessage()}
+      </div>
       {hasCountdown && <div className='countdown-outer-container center'>
         {isCountingDown && <div className='spinner' />}
         
@@ -148,9 +158,7 @@ const VoiceRecorder: React.FC = () => {
           {secondsRemaining}
         </div>
       </div>}
-      <div className='text-container'>
-        {isRecording && 'Recording in Progress...'}
-      </div>
+      
       {error instanceof Error && <div className='error text-container'>
         <p>{error.message}</p>
         {error instanceof DOMException &&
