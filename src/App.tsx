@@ -1,13 +1,17 @@
 import React, {useEffect, useState} from 'react';
-import { ErrorMessage } from './components/ErrorMessage';
+import { ErrorInstruction } from './components/ErrorInstruction';
 import './App.scss';
 
 const VoiceRecorder: React.FC = () => {
 
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>();
+  const [isCountingDown, setIsCountingDown] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
-  const [error, setError] = useState<Error | null | unknown>(null);
+  const [error, setError] = useState<Error | null | unknown>();
+  const [secondsRemaining, setSecondsRemaining] = useState<number | string | null>();
+  const [hasCountdown, setHasCountdown] = useState<boolean>(false);
+  const [waveform, setWaveform] = useState<number[]>([]);
 
   useEffect(() => {
 
@@ -41,6 +45,34 @@ const VoiceRecorder: React.FC = () => {
     }
   }, [mediaRecorder])
 
+  const startCountdown = () => {
+    setIsCountingDown(true);
+    let seconds = 3;
+
+    const audioContext = new (window.AudioContext)();
+
+
+    const countdownInterval = setInterval(() => {
+      setSecondsRemaining(seconds--);
+
+      if (seconds >= 0) {
+        const oscillator = audioContext.createOscillator();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
+        oscillator.connect(audioContext.destination);
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.1);
+      }
+
+      if (seconds < 0) {
+        clearInterval(countdownInterval);
+        setIsCountingDown(false);
+        setSecondsRemaining('Speak')
+        startRecording();
+      }
+    }, 1000);
+  }
+
   const startRecording = () => {
     try {
       if (mediaRecorder && !isRecording) {
@@ -57,6 +89,7 @@ const VoiceRecorder: React.FC = () => {
     if (mediaRecorder && isRecording) {
       mediaRecorder.stop();
       setIsRecording(false);
+      setSecondsRemaining(null);
     }
   }
 
@@ -75,10 +108,15 @@ const VoiceRecorder: React.FC = () => {
         <p className='sentence'>The quick brown fox jumps over the lazy dog.</p>
       </div>
 
+      <div className='text-container checkbox'>
+        <input type='checkbox' id='toggle-timer' disabled={isRecording} name='toggle-timer' onChange={() => setHasCountdown(!hasCountdown)} />
+        <label htmlFor='toggle-timer'>Enable 3-second countdown prior to recording</label>
+      </div>
+
       <button 
         className='record'
-        disabled={isRecording}
-        onClick={startRecording}
+        disabled={isRecording || isCountingDown}
+        onClick={hasCountdown ? startCountdown : startRecording}
       >
         {audioBlob ? 'Re-Record' : 'Start Recording'}
       </button>
@@ -93,22 +131,30 @@ const VoiceRecorder: React.FC = () => {
 
       <button 
         className='play'
-        disabled={!audioBlob}
+        disabled={!audioBlob || isRecording}
         onClick={playAudio}
       >
         Play
       </button>
 
-      <div className='message-container'>
+      <div className='text-container'>
         {audioBlob ? 'Audio Recorded' : 'No Audio on File'}
       </div>
-      <div className='message-container'>
+      
+      {hasCountdown && <div className='countdown-outer-container center'>
+        {isCountingDown && <div className='spinner' />}
+        
+        <div className='countdown-inner-container center'>
+          {secondsRemaining}
+        </div>
+      </div>}
+      <div className='text-container'>
         {isRecording && 'Recording in Progress...'}
       </div>
-      {error instanceof Error && <div className='error message-container'>
+      {error instanceof Error && <div className='error text-container'>
         <p>{error.message}</p>
         {error instanceof DOMException &&
-          <ErrorMessage />
+          <ErrorInstruction />
         }
       </div>}
     </div>
