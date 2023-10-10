@@ -1,4 +1,4 @@
-export const ErrorInstruction = () => (
+const ErrorInstruction = () => (
   <>
     <hr/>
     <p>Please check that you</p>
@@ -9,3 +9,6 @@ export const ErrorInstruction = () => (
       </ul>
   </>
 )
+
+
+export default ErrorInstruction;

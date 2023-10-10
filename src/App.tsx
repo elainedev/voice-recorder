@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import { ErrorInstruction } from './components/ErrorInstruction';
+import AudioVisualizer from './components/AudioVisualizer';
+import ErrorInstruction from './components/ErrorInstruction';
 import './App.scss';
 
 const VoiceRecorder: React.FC = () => {
@@ -11,7 +12,6 @@ const VoiceRecorder: React.FC = () => {
   const [error, setError] = useState<Error | null | unknown>();
   const [secondsRemaining, setSecondsRemaining] = useState<number | string | null>();
   const [hasCountdown, setHasCountdown] = useState<boolean>(false);
-  const [waveform, setWaveform] = useState<number[]>([]);
 
   useEffect(() => {
 
@@ -115,7 +115,7 @@ const VoiceRecorder: React.FC = () => {
       <label className='instruction'>{`Please record the following sentence with your voice:`}</label>
 
       <div className='sentence-container'>
-        <p className='sentence'>The quick brown fox jumps over the lazy dog.</p>
+        <p className='sentence'>This voice recording app is pretty dope.</p>
       </div>
 
       <div className='text-container checkbox'>
@@ -158,6 +158,8 @@ const VoiceRecorder: React.FC = () => {
           {secondsRemaining}
         </div>
       </div>}
+
+      {audioBlob && <AudioVisualizer audioBlob={audioBlob} />}
       
       {error instanceof Error && <div className='error text-container'>
         <p>{error.message}</p>
