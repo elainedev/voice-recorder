@@ -13,6 +13,7 @@ const VoiceRecorder: React.FC = () => {
   const [error, setError] = useState<Error | null | unknown>();
   const [secondsRemaining, setSecondsRemaining] = useState<number | string | null>(null);
   const [hasCountdown, setHasCountdown] = useState<boolean>(false);
+  const [isClickDebounced, setIsClickDebounced] = useState<boolean>(false);
 
   useEffect(() => {
 
@@ -96,11 +97,23 @@ const VoiceRecorder: React.FC = () => {
   }
 
   const playAudio = () => {
+    console.log('playing audio')
     if (audioBlob) {
       const audio = new Audio(URL.createObjectURL(audioBlob));
       audio.play();
     }
   };
+
+  const playAudioDebounced = () => {
+    if (!isClickDebounced) {
+      setIsClickDebounced(true);
+      playAudio();
+
+      setTimeout(() => {
+        setIsClickDebounced(false);
+      }, 1000);
+    }
+  }
 
   const generateStatusMessage = () => {
     if (isRecording) {
@@ -144,7 +157,7 @@ const VoiceRecorder: React.FC = () => {
       <button 
         className='play'
         disabled={!audioBlob || isRecording}
-        onClick={playAudio}
+        onClick={playAudioDebounced}
       >
         Play
       </button>
