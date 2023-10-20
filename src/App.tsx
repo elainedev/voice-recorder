@@ -105,7 +105,7 @@ const VoiceRecorder: React.FC = () => {
     }
   };
 
-  const playNthAudio = (index) => {
+  const playNthAudio = (index: number) => {
     if (audioBlob && chunks?.length) {
       const audio = new Audio(URL.createObjectURL(chunks[index]));
       audio.play();
