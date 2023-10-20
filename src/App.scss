@@ -1,7 +1,6 @@
 .app {
   padding: 20px;
   min-width: 360px;
-  max-width: 600px;
   min-height: 60vh;
   background: white;
   box-shadow: 4px 4px 20px 2px #888;
@@ -17,6 +16,16 @@
     padding: 20px;
   }
   
+  .audio-list {
+    padding: 0;
+  }
+
+  .audio-item {
+    list-style-type: none;
+    // display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
   button {
     border: none;
@@ -26,7 +35,6 @@
     margin-inline-end: 10px;
     padding: 12px 20px 10px;
     font-size: 1.2rem;
-    width: 175px;
     cursor: pointer;
 
     &:disabled {
@@ -45,6 +53,16 @@
 
     &.play {
       background-color: purple;
+    }
+
+    &.submit {
+      background-color: plum;
+    }
+
+    &.play-current {
+      background-color: skyblue;
+      font-size: 1rem;
+      margin-inline-start: 10px;
     }
   }
 

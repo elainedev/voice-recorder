@@ -14,6 +14,7 @@ const VoiceRecorder: React.FC = () => {
   const [secondsRemaining, setSecondsRemaining] = useState<number | string | null>(null);
   const [hasCountdown, setHasCountdown] = useState<boolean>(false);
   const [isClickDebounced, setIsClickDebounced] = useState<boolean>(false);
+  const [chunks, setChunks] = useState<Blob[] | null>();
 
   useEffect(() => {
 
@@ -31,7 +32,7 @@ const VoiceRecorder: React.FC = () => {
 
   useEffect(() => {
     if (mediaRecorder) {
-      let chunks: Blob[] = [];
+      const chunks: Blob[] = [];
 
       mediaRecorder.ondataavailable = (event : BlobEvent) => {
         if (event.data.size) {
@@ -42,7 +43,8 @@ const VoiceRecorder: React.FC = () => {
       mediaRecorder.onstop = () => {
         const blob = new Blob(chunks, {type: 'audio/wav'});
         setAudioBlob(blob);
-        chunks = [];
+        setChunks(chunks);
+        // chunks = [];
       }
     }
   }, [mediaRecorder])
@@ -96,18 +98,32 @@ const VoiceRecorder: React.FC = () => {
     }
   }
 
-  const playAudio = () => {
-    console.log('playing audio')
+  const playLastAudio = () => {
+    if (audioBlob && chunks?.length) {
+      const audio = new Audio(URL.createObjectURL(chunks[chunks.length - 1]));
+      audio.play();
+    }
+  };
+
+  const playNthAudio = (index) => {
+    if (audioBlob && chunks?.length) {
+      const audio = new Audio(URL.createObjectURL(chunks[index]));
+      audio.play();
+    }
+  };
+
+  const playAllAudio = () => {
+    console.log('chunks', chunks)
     if (audioBlob) {
       const audio = new Audio(URL.createObjectURL(audioBlob));
       audio.play();
     }
   };
 
-  const playAudioDebounced = () => {
+  const playAudioDebounced = (callback: () => void) => {
     if (!isClickDebounced) {
       setIsClickDebounced(true);
-      playAudio();
+      callback();
 
       setTimeout(() => {
         setIsClickDebounced(false);
@@ -143,7 +159,8 @@ const VoiceRecorder: React.FC = () => {
         disabled={isRecording || isCountingDown}
         onClick={hasCountdown ? startCountdown : startRecording}
       >
-        {audioBlob ? 'Re-Record' : 'Start Recording'}
+        {/* {audioBlob ? 'Re-Record' : 'Start Recording'} */}
+        Record
       </button>
 
       <button 
@@ -157,9 +174,17 @@ const VoiceRecorder: React.FC = () => {
       <button 
         className='play'
         disabled={!audioBlob || isRecording}
-        onClick={playAudioDebounced}
+        onClick={() => playAudioDebounced(playLastAudio)}
       >
-        Play
+        Play Last Recording
+      </button>
+
+      <button 
+        className='submit'
+        disabled={!audioBlob || isRecording}
+        onClick={() => playAudioDebounced(playAllAudio)}
+      >
+        Play All Audio
       </button>
 
       
@@ -191,6 +216,13 @@ const VoiceRecorder: React.FC = () => {
           {secondsRemaining}
         </div>
       </div>}
+
+      <ul className='audio-list'>{chunks?.map((_, index) => (
+        <li className='audio-item'>
+          {`Audio ${index + 1}`} 
+          <button className='play-current' onClick={() => playNthAudio(index)}>{`Play`}</button>
+        </li>
+      ))}</ul>
 
       {audioBlob && <AudioVisualizer audioBlob={audioBlob} />}
       
